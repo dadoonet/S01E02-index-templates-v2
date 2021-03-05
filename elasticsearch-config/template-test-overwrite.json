@@ -1,0 +1,22 @@
+{
+  "index_patterns": ["test-*"],
+  "priority": 200,
+  "composed_of": [
+    "test-settings-5shards", 
+    "test-mapping-timestamp", 
+    "test-mapping-ip", 
+    "test-alias"
+  ],
+  "template": {
+    "settings": {
+      "number_of_shards": 2
+    },
+    "mappings": {
+      "properties": {
+        "host_name": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
