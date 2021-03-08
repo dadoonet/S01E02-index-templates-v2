@@ -1,0 +1,111 @@
+## Some index settings as components
+
+PUT /_component_template/test-settings-small
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 1
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-settings-big
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 5
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-settings-production-sla
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_replicas": 1
+      }
+    }
+  }
+}
+
+## Some index mappings as components
+
+PUT /_component_template/test-mapping-ip
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "ip_address": {
+          "type": "ip"
+        }
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-mapping-postal-address
+{
+  "template": {
+	  "settings": {
+	    "index": {
+	      "analysis": {
+	        "analyzer": {
+	          "city_analyzer": {
+	            "type": "custom",
+	            "tokenizer": "standard",
+	            "filter": [
+	              "lowercase",
+	              "asciifolding"
+	            ]
+	          }
+	        }
+	      }
+	    }
+	  },
+	  "mappings": {
+	    "properties": {
+	      "address": {
+	        "properties": {
+	          "city": {
+	            "type": "text",
+	            "analyzer": "city_analyzer"
+	          },
+	          "zipcode": {
+	            "type": "keyword"
+	          }
+	        }
+	      }
+	    }
+	  }
+  }
+}
+
+PUT /_component_template/test-alias
+{
+  "template": {
+    "aliases": {
+      "test-alias": { }
+    }
+  }
+}
+
+
+POST /_index_template/_simulate_index/test-foo
+
+
+PUT /_component_template/test-settings-small
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 2
+      }
+    }
+  }
+}
+

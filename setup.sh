@@ -16,16 +16,16 @@ check_service () {
 }
 
 # Upload component template
-upload_component_template () {
-	echo Uploading component template $1
-	curl -XPUT "$ELASTICSEARCH_URL/_component_template/$1" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d"@elasticsearch-config/component-$1.json" ; echo
-}
+#upload_component_template () {
+#	echo Uploading component template $1
+#	curl -XPUT "$ELASTICSEARCH_URL/_component_template/$1" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d"@elasticsearch-config/component-$1.json" ; echo
+#}
 
 # Upload index template
-upload_index_template () {
-	echo Uploading index template $1
-	curl -XPUT "$ELASTICSEARCH_URL/_index_template/$1" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d"@elasticsearch-config/template-$1.json" ; echo
-}
+#upload_index_template () {
+#	echo Uploading index template $1
+#	curl -XPUT "$ELASTICSEARCH_URL/_index_template/$1" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d"@elasticsearch-config/template-$1.json" ; echo
+#}
 
 # Start of the script
 echo Installation script for Index Templates V2 demo with Elastic $ELASTIC_VERSION
@@ -52,24 +52,24 @@ echo Remove existing test* templates
 curl -XDELETE "$ELASTICSEARCH_URL/_index_template/test*" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Remove existing test-* component templates
-curl -XDELETE "$ELASTICSEARCH_URL/_component_template/test-" -u elastic:$ELASTIC_PASSWORD ; echo
+curl -XDELETE "$ELASTICSEARCH_URL/_component_template/test-*" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Remove existing test* indices
 curl -XDELETE "$ELASTICSEARCH_URL/test*" -u elastic:$ELASTIC_PASSWORD ; echo
 
-echo Define component templates
-upload_component_template test-settings-1shard
-upload_component_template test-settings-5shards
-upload_component_template test-settings-noreplica
-upload_component_template test-settings-1replica
-upload_component_template test-mapping-complex
-upload_component_template test-mapping-timestamp
-upload_component_template test-mapping-ip
-upload_component_template test-alias
+#echo Define component templates
+#upload_component_template test-settings-1shard
+#upload_component_template test-settings-5shards
+#ipload_component_template test-settings-noreplica
+#upload_component_template test-settings-1replica
+#upload_component_template test-mapping-complex
+#upload_component_template test-mapping-timestamp
+#upload_component_template test-mapping-ip
+#upload_component_template test-alias
 
-echo Define index templates
-upload_index_template test-simple
-upload_index_template test-overwrite
+#echo Define index templates
+#upload_index_template test-simple
+#upload_index_template test-overwrite
 
 echo -ne '\n'
 echo "#####################"
@@ -77,6 +77,11 @@ echo "### Demo is ready ###"
 echo "#####################"
 echo -ne '\n'
 
-echo "You can now open the following application:"
-echo "open $KIBANA_URL/app/management/data/index_management/templates"
+open $KIBANA_URL/app/management/data/index_management/templates
+open $KIBANA_URL/app/dev_tools/
+
+echo "If not yet there, paste the following script in Dev Tools:"
+cat elasticsearch-config/devtools-script.json
+echo -ne '\n'
+
 

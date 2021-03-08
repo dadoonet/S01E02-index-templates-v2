@@ -42,17 +42,14 @@ And run:
 ## Demo part
 
 Open the Stack Management in Kibana and go to Index Management.
-Highlight the managed templates which already exists and hide them.
+Highlight the managed templates which already exists.
 
-![Index Templates V2](images/01-index-management.png "Index Templates V2")
-
-Explain that our templates are made here of several components. We can find those component templates in the "Component Templates" tab. Filter the names with `test-`.
 
 ![Index Templates V2](images/02-component-templates.png "Index Templates V2")
 
 ### Component templates
 
-Let's have a look on how you can create a component template. Name it `test-component`.
+Open the "Component Templates" tab and let's have a look on how you can create a component template. Name it `test-settings-no-sla`.
 
 ![Index Templates V2](images/03-create-component-1.png "Index Templates V2")
 
@@ -60,34 +57,130 @@ Add the following index settings:
 
 ```json
 {
-  "number_of_replicas": 1
+  "number_of_replicas": 0
 }
 ```
 
-![Index Templates V2](images/04-create-component-2.png "Index Templates V2")
+And save it.
 
-Add a `textfield`and a `datefield`.
-
-![Index Templates V2](images/05-create-component-3.png "Index Templates V2")
-
-And show all the options you can edit later on if you edit the text field or the date field.
+Create another one with a `@timestamp` field and name it `test-mapping-timestamp` as a `date` field.
+You can also show all the options you can edit later on if you edit the text field or the date field.
 
 ![Index Templates V2](images/06-create-component-4.png "Index Templates V2")
 
-Do not define any alias and review the component before saving it.
 
-![Index Templates V2](images/07-create-component-5.png "Index Templates V2")
+### Create a bunch of component templates
+
+We can also use "dev tools" to create some of the templates we need:
+
+```
+## Some index settings as components
+
+PUT /_component_template/test-settings-small
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 1
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-settings-big
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 5
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-settings-production-sla
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_replicas": 1
+      }
+    }
+  }
+}
+
+## Some index mappings as components
+
+PUT /_component_template/test-mapping-ip
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "ip_address": {
+          "type": "ip"
+        }
+      }
+    }
+  }
+}
+
+PUT /_component_template/test-mapping-postal-address
+{
+  "template": {
+	  "settings": {
+	    "index": {
+	      "analysis": {
+	        "analyzer": {
+	          "city_analyzer": {
+	            "type": "custom",
+	            "tokenizer": "standard",
+	            "filter": [
+	              "lowercase",
+	              "asciifolding"
+	            ]
+	          }
+	        }
+	      }
+	    }
+	  },
+	  "mappings": {
+	    "properties": {
+	      "address": {
+	        "properties": {
+	          "city": {
+	            "type": "text",
+	            "analyzer": "city_analyzer"
+	          },
+	          "zipcode": {
+	            "type": "keyword"
+	          }
+	        }
+	      }
+	    }
+	  }
+  }
+}
+
+PUT /_component_template/test-alias
+{
+  "template": {
+    "aliases": {
+      "test-alias": { }
+    }
+  }
+}
+```
 
 ### Index templates
 
-Go back to the Index Templates tab and chow how to create a new template `test-new-template` that applies to index patterns `test-*`.
+Go back to the Index Templates tab and show how to create a new template `test-simple` that applies to index patterns `test-*`.
 
 ![Index Templates V2](images/10-create-index-template.png "Index Templates V2")
 
 Add some component templates like:
 
-* `test-settings-5shards`
-* `test-settings-1replica`
+* `test-settings-small`
+* `test-settings-no-sla`
 * `test-mapping-timestamp`
 * `test-mapping-ip`
 * `test-alias`
@@ -104,13 +197,24 @@ The preview tab gives you an idea of what the template will look like.
 
 ![Index Templates V2](images/13-create-index-template.png "Index Templates V2")
 
+Click on "Create template". Done.
+
+Let's create a new one `test-overwrite` which uses now:
+
+* `test-settings-small`
+* `test-settings-production-sla`
+* `test-mapping-timestamp`
+* `test-mapping-ip`
+* `test-alias`
+
 If you click on "Create template", you will see an error message:
 
 ```
-index template [test-new-template] has index patterns [test-*] matching patterns from existing templates [test-simple] with patterns (test-simple => [test-*]) that have the same priority [0], multiple index templates may not match during index creation, please use a different priority
+index template [test-overwrite] has index patterns [test-*] matching patterns from existing templates [test-simple] with patterns (test-simple => [test-*]) that have the same priority [0], multiple index templates may not match during index creation, please use a different priority
 ```
 
 Go to the Logistics tab and change the priority to `300`. Go back to the next tab and create the template.
+
 
 ### Simulate index names
 
@@ -120,14 +224,30 @@ Open Dev Tools and simulate an index name `test-foo`:
 POST /_index_template/_simulate_index/test-foo
 ```
 
-Show that we have our settings, fields and that we are overlapping 2 index templates `test-simple` and `test-overwrite`.
+Show that we have our settings, fields and that we are overlapping the index template `test-simple`. It can be on purpose but at least we are aware of it.
 
-Show other examples:
+Change the component `test-settings-small` with 2 shards instead of one:
 
 ```
-POST /_index_template/_simulate_index/logs-foo
-POST /_index_template/_simulate_index/logs-foo-bar
-POST /_index_template/_simulate_index/metrics-foo-bar
+PUT /_component_template/test-settings-small
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 2
+      }
+    }
+  }
+}
 ```
 
+And simulate again:
+
+```
+POST /_index_template/_simulate_index/test-foo
+```
+
+We can see that our index template is updated with that change. We can update one component template which will update all the index templates which are using it.
+
+From the UI we can also remove non used compnent templates like `test-mapping-post-address`.
 

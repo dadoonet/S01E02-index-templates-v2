@@ -1,9 +1,0 @@
-{
-  "index_patterns": ["test-*"],
-  "composed_of": [
-    "test-settings-5shards", 
-    "test-mapping-timestamp", 
-    "test-mapping-ip", 
-    "test-alias"
-  ]
-}

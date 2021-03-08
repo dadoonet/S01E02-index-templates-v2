@@ -1,9 +1,0 @@
-{
-  "template": {
-    "settings": {
-      "index": {
-        "number_of_shards": 5
-      }
-    }
-  }
-}
