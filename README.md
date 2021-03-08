@@ -45,7 +45,7 @@ Open the Stack Management in Kibana and go to Index Management.
 Highlight the managed templates which already exists.
 
 
-![Index Templates V2](images/02-component-templates.png "Index Templates V2")
+![Index Templates V2](images/01-index-management.png "Index Templates V2")
 
 ### Component templates
 
@@ -63,10 +63,12 @@ Add the following index settings:
 
 And save it.
 
-Create another one with a `@timestamp` field and name it `test-mapping-timestamp` as a `date` field.
-You can also show all the options you can edit later on if you edit the text field or the date field.
+Create another one named `test-mapping-timestamp` with a `@timestamp` as a `date` field.
+You can also show all the options you can edit later on if you edit the date field.
 
 ![Index Templates V2](images/06-create-component-4.png "Index Templates V2")
+
+Also, highlight the new "Runtime fields" option which is now available.
 
 
 ### Create a bunch of component templates
@@ -127,37 +129,37 @@ PUT /_component_template/test-mapping-ip
 PUT /_component_template/test-mapping-postal-address
 {
   "template": {
-	  "settings": {
-	    "index": {
-	      "analysis": {
-	        "analyzer": {
-	          "city_analyzer": {
-	            "type": "custom",
-	            "tokenizer": "standard",
-	            "filter": [
-	              "lowercase",
-	              "asciifolding"
-	            ]
-	          }
-	        }
-	      }
-	    }
-	  },
-	  "mappings": {
-	    "properties": {
-	      "address": {
-	        "properties": {
-	          "city": {
-	            "type": "text",
-	            "analyzer": "city_analyzer"
-	          },
-	          "zipcode": {
-	            "type": "keyword"
-	          }
-	        }
-	      }
-	    }
-	  }
+    "settings": {
+      "index": {
+        "analysis": {
+          "analyzer": {
+            "city_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": [
+                "lowercase",
+                "asciifolding"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "address": {
+          "properties": {
+            "city": {
+              "type": "text",
+              "analyzer": "city_analyzer"
+            },
+            "zipcode": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -209,6 +211,9 @@ Let's create a new one `test-overwrite` which uses now:
 
 If you click on "Create template", you will see an error message:
 
+![Index Templates V2](images/14-create-index-template.png "Index Templates V2")
+
+
 ```
 index template [test-overwrite] has index patterns [test-*] matching patterns from existing templates [test-simple] with patterns (test-simple => [test-*]) that have the same priority [0], multiple index templates may not match during index creation, please use a different priority
 ```
@@ -249,5 +254,5 @@ POST /_index_template/_simulate_index/test-foo
 
 We can see that our index template is updated with that change. We can update one component template which will update all the index templates which are using it.
 
-From the UI we can also remove non used compnent templates like `test-mapping-post-address`.
+From the UI we can also remove non used compnent templates like `test-mapping-postal-address`.
 
