@@ -15,6 +15,17 @@ check_service () {
 	echo $1 is now up.
 }
 
+# Curl Post call Param 1 is the Full URL, Param 2 is a json file, Param 3 is optional text
+# 
+curl_post_form () {
+	if [ -z "$3" ] ; then
+		echo "Calling POST FORM $1"
+	else 
+	  echo $3
+	fi
+  curl -XPOST "$1" -u elastic:$ELASTIC_PASSWORD -H 'kbn-xsrf: true' --form file="@$2" ; echo
+}
+
 # Upload component template
 #upload_component_template () {
 #	echo Uploading component template $1
@@ -72,13 +83,20 @@ curl -XDELETE "$ELASTICSEARCH_URL/test*" -u elastic:$ELASTIC_PASSWORD ; echo
 #upload_index_template test-overwrite
 
 echo -ne '\n'
+echo "#############################"
+echo "### Install Canvas Slides ###"
+echo "#############################"
+echo -ne '\n'
+
+curl_post_form "$KIBANA_URL/api/saved_objects/_import?overwrite=true" "kibana-config/canvas.ndjson"
+
+echo -ne '\n'
 echo "#####################"
 echo "### Demo is ready ###"
 echo "#####################"
 echo -ne '\n'
 
-open $KIBANA_URL/app/management/data/index_management/templates
-# open $KIBANA_URL/app/dev_tools/
+open "$KIBANA_URL/app/canvas#/"
 
 echo "If not yet there, paste the following script in Dev Tools:"
 cat elasticsearch-config/devtools-script.json
